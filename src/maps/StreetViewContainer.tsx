@@ -9,6 +9,8 @@ interface StreetViewContainerProps {
   };
   zoom: number;
 
+  usedCountries: { lat: number, lng: number }[];
+
   doneCallback: Function;
 }
 
@@ -17,13 +19,10 @@ interface StreetViewContainerState {
 
 export class StreetViewContainer extends React.Component<StreetViewContainerProps, StreetViewContainerState> {
   panorama: any;
-  usedLocs: { lat: number; lng: number }[];
 
   constructor(props: StreetViewContainerProps) {
     super(props);
     this.panorama = React.createRef();
-    this.usedLocs = [];
-
   }
 
 
@@ -53,7 +52,7 @@ export class StreetViewContainer extends React.Component<StreetViewContainerProp
       .then((data: any) => {
         data.results.forEach((obj: any) => {
           if (obj.types.includes('country')) {
-            this.props.doneCallback(obj.formatted_address, obj.address_components[0].short_name);
+            this.props.doneCallback(obj.formatted_address, obj.address_components[0].short_name, loc);
           }
         });
       });
@@ -76,9 +75,8 @@ export class StreetViewContainer extends React.Component<StreetViewContainerProp
     let l;
 
     do l = locations[Math.floor(randomRange(0, locations.length))];
-    while (this.usedLocs.includes(l));
+    while (this.props.usedCountries.includes(l));
 
-    this.usedLocs.push(l);
     return l;
   }
 }

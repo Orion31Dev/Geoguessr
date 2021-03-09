@@ -14,6 +14,8 @@ interface AppState {
   country: string;
   countryCode: string;
 
+  usedCountries: { lat: number, lng: number }[];
+
   rounds: boolean[];
 }
 
@@ -29,6 +31,7 @@ class App extends React.Component<any, AppState> {
       country: '',
       countryCode: '',
       rounds: [],
+      usedCountries: [],
     };
 
     this.nv = React.createRef();
@@ -51,6 +54,7 @@ class App extends React.Component<any, AppState> {
               center={{ lat: 41.157398, lng: -73.356401 }}
               zoom={0}
               doneCallback={this.streetViewDone.bind(this)}
+              usedCountries={this.state.usedCountries}
               key={this.state.rounds.length + 1}
             ></StreetViewContainer>
           </div>
@@ -128,7 +132,7 @@ class App extends React.Component<any, AppState> {
     this.setState({ correct: false, guessed: false, country: '', countryCode: '' });
 
     if (this.state.rounds.length >= ROUND_NUM) return;
-    this.setState({rounds: [...this.state.rounds, this.state.correct]});
+    this.setState({ rounds: [...this.state.rounds, this.state.correct] });
   }
 
   guess(guess: string) {
@@ -141,8 +145,8 @@ class App extends React.Component<any, AppState> {
     if (this.state.rounds.length === ROUND_NUM - 1) this.setState({ rounds: [...this.state.rounds, correct] });
   }
 
-  streetViewDone(country: string, countryCode: string) {
-    this.setState({ country: country, countryCode: countryCode });
+  streetViewDone(country: string, countryCode: string, loc: { lat: number, lng: number }) {
+    this.setState({ country: country, countryCode: countryCode, usedCountries: [...this.state.usedCountries, loc] });
   }
 }
 
