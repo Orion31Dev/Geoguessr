@@ -8,7 +8,7 @@ import SoloCountries from './routes/SoloCountries';
 function App() {
   return (
     <div>
-      <div className="version-number">v{process.env.REACT_APP_VERSION}-{process.env.REACT_APP_BUILD_NUM}</div>
+      <div className="version-number">{process.env.REACT_APP_VERSION}-{process.env.REACT_APP_BUILD_NUM}</div>
       <BrowserRouter>
         <Switch>
           <Route exact path={'/'}>

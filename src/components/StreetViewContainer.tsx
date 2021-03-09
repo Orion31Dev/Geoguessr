@@ -1,6 +1,5 @@
 import React from 'react';
 import GoogleMapReact from 'google-map-react';
-require('dotenv').config();
 
 interface StreetViewContainerProps {
   center: {
@@ -25,6 +24,7 @@ export class StreetViewContainer extends React.Component<StreetViewContainerProp
   }
 
   render() {
+    console.log(process.env);
     return (
       <div id={'map'} style={{ height: '99vh', width: '99.5%' }}>
         <GoogleMapReact

@@ -3,8 +3,6 @@ import GoogleMapReact from 'google-map-react';
 
 import geoJSON from '../countries.json';
 
-require('dotenv').config();
-
 interface MapContainerProps {
   center: {
     lat: number;
