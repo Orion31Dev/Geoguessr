@@ -7,26 +7,36 @@ interface StreetViewContainerProps {
     lat: number;
     lng: number;
   };
-  zoom: 11;
+  zoom: number;
+
+  doneCallback: Function;
 }
 
-export class StreetViewContainer extends React.Component<StreetViewContainerProps> {
+interface StreetViewContainerState {
+}
+
+export class StreetViewContainer extends React.Component<StreetViewContainerProps, StreetViewContainerState> {
   panorama: any;
+  usedLocs: { lat: number; lng: number }[];
 
   constructor(props: StreetViewContainerProps) {
     super(props);
     this.panorama = React.createRef();
+    this.usedLocs = [];
+
   }
+
 
   render() {
     return (
-      <div id={'map'} style={{ height: '95vh', width: '95%' }}>
+      <div id={'map'} style={{ height: '99vh', width: '99.5%' }}>
         <GoogleMapReact
           bootstrapURLKeys={{ key: process.env.REACT_APP_API_KEY as string }}
           defaultCenter={this.props.center}
           defaultZoom={this.props.zoom}
           ref={this.panorama}
           onGoogleApiLoaded={({ map, maps }) => this.apiIsLoaded(map, maps)}
+          yesIWantToUseGoogleMapApiInternals
         ></GoogleMapReact>
       </div>
     );
@@ -36,11 +46,19 @@ export class StreetViewContainer extends React.Component<StreetViewContainerProp
     let sv = new maps.StreetViewService();
     let panorama = new maps.StreetViewPanorama(document.getElementById('map'));
 
-    const loc = getRandomLatLng();
+    let loc = this.getRandomLatLng();
 
-    console.log(loc);
+    fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${loc.lat},${loc.lng}&key=${process.env.REACT_APP_API_KEY}`)
+      .then((res) => res.json())
+      .then((data: any) => {
+        data.results.forEach((obj: any) => {
+          if (obj.types.includes('country')) {
+            this.props.doneCallback(obj.formatted_address, obj.address_components[0].short_name);
+          }
+        });
+      });
 
-    sv.getPanorama({ location: loc, radius: 50 }, (data: any, _status: any) => {
+    sv.getPanorama({ location: loc, radius: 100 }, (data: any, _status: any) => {
       panorama.setPano(data.location.pano);
       panorama.setPov({
         heading: 270,
@@ -53,6 +71,16 @@ export class StreetViewContainer extends React.Component<StreetViewContainerProp
       });
     });
   };
+
+  getRandomLatLng() {
+    let l;
+
+    do l = locations[Math.floor(randomRange(0, locations.length))];
+    while (this.usedLocs.includes(l));
+
+    this.usedLocs.push(l);
+    return l;
+  }
 }
 
 const locations = [
@@ -65,10 +93,6 @@ const locations = [
   { lat: -35.1746662, lng: -58.2285172 },
   { lat: 49.9102813, lng: -97.1710041 },
 ];
-
-function getRandomLatLng() {
-  return locations[Math.floor(randomRange(0, locations.length))];
-}
 
 function randomRange(min: number, max: number) {
   return Math.random() * (max - min) + min;

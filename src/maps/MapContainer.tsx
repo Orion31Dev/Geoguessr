@@ -1,6 +1,8 @@
 import React from 'react';
 import GoogleMapReact from 'google-map-react';
 
+import geoJSON from '../countries.json';
+
 require('dotenv').config();
 
 interface MapContainerProps {
@@ -9,72 +11,80 @@ interface MapContainerProps {
     lng: number;
   };
   zoom: number;
+
+  guessCallback: (guess: string) => void;
 }
 
-export class MapContainer extends React.Component<MapContainerProps> {
+interface MapContainerState {
+  activePoly: any | undefined;
+}
+
+export class MapContainer extends React.Component<MapContainerProps, MapContainerState> {
+  constructor(props: MapContainerProps) {
+    super(props);
+
+    this.state = {
+      activePoly: undefined,
+    };
+  }
+
   render() {
     return (
-      <div style={{ position: 'absolute', bottom: '2.5vh', right: '2.5vw', height: '30vh', width: '25%', zIndex: 10 }}>
-        <GoogleMapReact
-          bootstrapURLKeys={{ key: process.env.REACT_APP_API_KEY as string }}
-          defaultCenter={this.props.center}
-          defaultZoom={this.props.zoom}
-          onGoogleApiLoaded={({ map, maps }) => this.drawMap(map, maps)}
-        >
-        </GoogleMapReact>
+      <div>
+        <div className={'selected-country' + (this.state.activePoly ? ' active' : '')} onClick={this.guess.bind(this)}>
+          {this.state.activePoly ? this.state.activePoly.i.ADMIN : 'Select a country'}
+        </div>
+        <div className="map">
+          <GoogleMapReact
+            bootstrapURLKeys={{
+              key: process.env.REACT_APP_API_KEY as string,
+            }}
+            defaultCenter={this.props.center}
+            defaultZoom={this.props.zoom}
+            onGoogleApiLoaded={({ map, maps }) => this.drawMap(map, maps)}
+            yesIWantToUseGoogleMapApiInternals
+          ></GoogleMapReact>
+        </div>
       </div>
     );
   }
 
   drawMap(map: any, maps: any) {
-    var rows = map.data['rows'];
-    console.log(map.data);
-    for (var i in rows) {
-      if (rows[i][0] !== 'Antarctica') {
-        var newCoordinates = [];
-        var geometries = rows[i][1]['geometries'];
-        if (geometries) {
-          for (var j in geometries) {
-            newCoordinates.push(this.constructNewCoordinates(maps, geometries[j]));
-          }
-        } else {
-          newCoordinates = this.constructNewCoordinates(maps, rows[i][1]['geometry']);
-        }
-        var country = new maps.Polygon({
-          paths: newCoordinates,
-          strokeColor: '#ff9900',
-          strokeOpacity: 1,
-          strokeWeight: 0.3,
-          fillColor: '#ffff66',
-          fillOpacity: 0,
-          name: rows[i][0]
-        });
+    map.data.addGeoJson(geoJSON);
+    maps.event.trigger(map, 'resize');
 
-        maps.event.addListener(country, 'mouseover', function() {
-          country.setOptions({fillOpacity: 0.4});
-        });
+    map.data.setStyle({
+      fillColor: '#00ff00',
+      strokeColor: '#ffff00',
+      strokeWeight: 2,
+      fillOpacity: 0,
+    });
 
-        maps.event.addListener(country, 'mouseout', function() {
-          country.setOptions({fillOpacity: 0});
-        });
+    map.setOptions({
+      disableDefaultUI: true,
+      mapTypeId: maps.MapTypeId.ROADMAP,
+    });
 
-        maps.event.addListener(country, 'click', function() {
-          alert(country.name);
+    map.data.addListener('click', (event: any) => {
+      map.data.overrideStyle(event.feature, {
+        fillOpacity: '0.3',
+        strokeColor: '#00ff00',
+        zIndex: 10,
+      });
+
+      if (this.state.activePoly) {
+        map.data.overrideStyle(this.state.activePoly, {
+          fillOpacity: '0',
+          strokeColor: '#ffff00',
+          zIndex: 1,
         });
-  
-        country.setMap(map);
       }
-    }
+
+      this.setState({ activePoly: event.feature });
+    });
   }
-  
-  constructNewCoordinates(maps: any, polygon: any) {
-    var newCoordinates = [];
-    var coordinates = polygon['coordinates'][0];
-    for (var i in coordinates) {
-      newCoordinates.push(
-          new maps.LatLng(coordinates[i][1], coordinates[i][0]));
-    }
-    return newCoordinates;
+
+  guess() {
+    this.props.guessCallback(this.state.activePoly.i.ISO_A3);
   }
 }
-
