@@ -225,8 +225,8 @@
 }
 
 .gamemode-img {
-  width: 10vw;
-  height: 10vw;
+  width: 18.5vmin;
+  height: 18.5vmin;
 
   border-radius: 50%;
   border: 0.5vw solid white;
@@ -244,13 +244,13 @@
 .img-countries {
   background-image: url('./globe.png');
   background-position: center;
-  background-size: 10.2vw;
+  background-size: 19.2vmin;
 }
 
 .img-battle-royale {
   background-image: url('./battleroyale.png');
   background-position: center;
-  background-size: 10.2vw;
+  background-size: 19.2vmin;
 }
 
 .gamemode-lbl {
@@ -292,7 +292,7 @@
 .wip {
   position: absolute;
 
-  bottom: -8vh;
+  bottom: -8vmin;
   font-size: 1vw;
 }
 
