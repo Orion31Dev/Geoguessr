@@ -1,7 +1,10 @@
 {
   "name": "geoguessr",
   "version": "0.1.0",
-  "engines": {"node": "12.x","npm": "6.x" },
+  "engines": {
+    "node": "14.13.1",
+    "npm": "6.x"
+  },
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
@@ -9,8 +12,8 @@
     "@testing-library/user-event": "^12.1.10",
     "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
+    "@types/react": "^17.0.1",
+    "@types/react-dom": "^17.0.1",
     "dotenv": "^8.2.0",
     "google-map-react": "^2.1.9",
     "react": "^17.0.1",
