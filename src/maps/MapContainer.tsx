@@ -54,9 +54,10 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
     maps.event.trigger(map, 'resize');
 
     map.data.setStyle({
-      fillColor: '#00ff00',
-      strokeColor: '#ffff00',
-      strokeWeight: 2,
+      fillColor: '#df00ff',
+      strokeColor: '#af00ff',
+      strokeWeight: 1,
+      strokeOpacity: 0,
       fillOpacity: 0,
     });
 
@@ -67,16 +68,14 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
 
     map.data.addListener('click', (event: any) => {
       map.data.overrideStyle(event.feature, {
-        fillOpacity: '0.3',
-        strokeColor: '#00ff00',
-        zIndex: 10,
+        fillOpacity: 0.3,
+        strokeOpacity: 1,
       });
 
       if (this.state.activePoly) {
         map.data.overrideStyle(this.state.activePoly, {
-          fillOpacity: '0',
-          strokeColor: '#ffff00',
-          zIndex: 1,
+          strokeOpacity: 0,
+          fillOpacity: 0,
         });
       }
 
