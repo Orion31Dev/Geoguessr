@@ -1,11 +1,11 @@
 import React from 'react';
- import { MapContainer } from '../components/MapContainer';
+import { MapContainer } from '../components/MapContainer';
 import { StreetViewContainer } from '../components/StreetViewContainer';
 import { isoA3ToA2 } from '../CountryCodes';
 
 require('dotenv').config();
 
-const ROUND_NUM = 5;
+const ROUND_NUM = 1;
 
 interface SoloCountriesState {
   correct: boolean;
@@ -13,7 +13,7 @@ interface SoloCountriesState {
   country: string;
   countryCode: string;
 
-  usedCountries: { lat: number, lng: number }[];
+  usedCountries: { lat: number; lng: number }[];
 
   rounds: boolean[];
 }
@@ -75,7 +75,8 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
   }
 
   renderResults() {
-    console.log(this.state.rounds);
+    if (this.state.country !== '') return;
+
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap', height: '100%', width: '100%' }}>
         <div className="result-percent">
@@ -89,6 +90,19 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
           %
         </div>
         <div className="result-lbl">Correct</div>
+        <div className="end-btns">
+          <a href="/">
+            <div className="btn-home end-btn">Home</div>
+          </a>
+          <div
+            className="btn-new-game end-btn"
+            onClick={() => {
+              this.setState({ correct: false, guessed: false, country: '', countryCode: '', rounds: [] });
+            }}
+          >
+            New Game
+          </div>
+        </div>
       </div>
     );
   }
@@ -143,7 +157,7 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
     if (this.state.rounds.length === ROUND_NUM - 1) this.setState({ rounds: [...this.state.rounds, correct] });
   }
 
-  streetViewDone(country: string, countryCode: string, loc: { lat: number, lng: number }) {
+  streetViewDone(country: string, countryCode: string, loc: { lat: number; lng: number }) {
     this.setState({ country: country, countryCode: countryCode, usedCountries: [...this.state.usedCountries, loc] });
   }
 }

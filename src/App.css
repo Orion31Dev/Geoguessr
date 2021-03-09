@@ -295,3 +295,51 @@
   bottom: -8vh;
   font-size: 1vw;
 }
+
+.end-btn {
+  margin: 0 .5vw;
+
+  height: 5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10vw;
+  border: 2px solid white;
+
+  cursor: pointer;
+  transition: .15s all linear;
+}
+
+.end-btn:hover {
+  color: #282c34;
+}
+
+.btn-home {
+  width: 8vw;
+  border-color: #ff88bb;
+  color: #ff88bb;
+}
+
+.btn-home:hover {
+  background: #ff88bb;
+}
+
+.btn-new-game {
+  width: 10vw;
+
+  border-color: #88bbff;
+  color: #88bbff;
+}
+
+.btn-new-game:hover {
+  background: #88bbff;
+}
+
+.end-btns {
+  display: flex;
+  justify-content: center;
+
+  position: absolute;
+  bottom: 30vh;
+}
