@@ -7,16 +7,13 @@ const commonConfig = require('./webpack.common');
 
 module.exports = merge(commonConfig, {
   mode: 'production',
-  entry: './src/index.tsx',
+  entry: ['babel-polyfill', './src/index.tsx'],
   output: {
     filename: 'js/bundle.[contenthash].min.js',
     path: resolve(__dirname, './dist'),
     publicPath: '/',
   },
-  devtool: 'source-map',
   plugins: [
-    new webpack.ProvidePlugin({
-      process: 'process/browser',
-    }),
+    new webpack.EnvironmentPlugin({REACT_APP_API_KEY: '', REACT_APP_VERSION: "UNK", REACT_APP_BUILD_NUM: '???'})
   ],
 });

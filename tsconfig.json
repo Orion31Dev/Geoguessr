@@ -23,5 +23,5 @@
   },
   "include": [
     "src"
-  ]
+, "api/server.ts"  ]
 }
