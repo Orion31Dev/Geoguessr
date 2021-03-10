@@ -3,7 +3,7 @@ import { MapContainer } from '../components/MapContainer';
 import { StreetViewContainer } from '../components/StreetViewContainer';
 import { isoA3ToA2 } from '../CountryCodes';
 
-const ROUND_NUM = 5;
+const ROUND_NUM = 1;
 
 interface SoloCountriesState {
   correct: boolean;
@@ -76,7 +76,8 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
     if (this.state.country !== '') return;
 
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap', height: '100%', width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap', height: '100%', width: '100%', marginTop: '-6vh', }}>
+        <div className="result-lbl">You Scored</div>
         <div className="result-percent">
           {Math.floor(
             (this.state.rounds.filter((b) => {
@@ -87,7 +88,6 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
           )}
           %
         </div>
-        <div className="result-lbl">Correct</div>
         <div className="end-btns">
           <a href="/">
             <div className="btn-home end-btn">Home</div>

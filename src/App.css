@@ -12,7 +12,7 @@
 }
 
 .title {
-  font-size: 5vh;
+  font-size: 5vmin;
   z-index: 100;
   color: white;
   font-weight: bold;
@@ -101,7 +101,7 @@
 .round-result {
   width: 29vw;
   height: 22vh;
-  border-radius: 2vw;
+  border-radius: 1vw;
 
   z-index: 1000;
 
@@ -169,14 +169,14 @@
 
 .btn-next-round {
   border: 2px solid white;
-  padding: 0.65vh 0.65vw;
+  padding: 0.65vh 0vw;
   border-radius: 1vw;
 
   z-index: 10;
   position: absolute;
   top: 62%;
 
-  width: 15vw;
+  width: 29vw;
 
   transition: 0.15s all ease;
 }
@@ -188,7 +188,7 @@
 }
 
 .result-percent {
-  font-size: 8vw;
+  font-size: 16vmin;
   font-weight: bold;
 
   color: white;
@@ -197,8 +197,8 @@
 }
 
 .result-lbl {
-  font-size: 3.5vw;
-  margin-top: -2vh;
+  font-size: 4vmin;
+  margin-bottom: -2.5vmin;
 }
 
 .version-number {
@@ -299,7 +299,7 @@
 .end-btn {
   margin: 0 .5vw;
 
-  height: 5vh;
+  height: 5vmin;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -309,6 +309,10 @@
 
   cursor: pointer;
   transition: .15s all linear;
+
+  font-size: 3vmin;
+
+  user-select: none;
 }
 
 .end-btn:hover {
@@ -316,7 +320,7 @@
 }
 
 .btn-home {
-  width: 8vw;
+  width: 14vmin;
   border-color: #ff88bb;
   color: #ff88bb;
 }
@@ -326,7 +330,7 @@
 }
 
 .btn-new-game {
-  width: 10vw;
+  width: 18vmin;
 
   border-color: #88bbff;
   color: #88bbff;
@@ -341,5 +345,5 @@
   justify-content: center;
 
   position: absolute;
-  bottom: 30vh;
+  bottom: 38vh;
 }

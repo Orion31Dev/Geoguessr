@@ -142,6 +142,7 @@ const locations = [
   { lat: 44.9345995, lng: 110.1354978 },
   { lat: 5.6119329, lng: 100.4827722 },
   { lat: 46.3547242, lng: 108.3678171 },
+  { lat: 46.0155517, lng: 9.2870717 },
 ];
 
 function randomRange(min: number, max: number) {
