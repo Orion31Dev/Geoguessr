@@ -3,7 +3,7 @@ import { MapContainer } from '../components/MapContainer';
 import { StreetViewContainer } from '../components/StreetViewContainer';
 import { isoA3ToA2 } from '../CountryCodes';
 
-const ROUND_NUM = 1;
+const ROUND_NUM = 5;
 
 interface SoloCountriesState {
   correct: boolean;
