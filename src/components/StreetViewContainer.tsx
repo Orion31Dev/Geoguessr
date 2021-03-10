@@ -44,6 +44,8 @@ export class StreetViewContainer extends React.Component<StreetViewContainerProp
 
     let loc = this.getRandomLatLng();
 
+    console.log('If the game crashed, please report this number to Ryan: ' + loc.lng);
+
     fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${loc.lat},${loc.lng}&key=${process.env.REACT_APP_API_KEY}`)
       .then((res) => res.json())
       .then((data: any) => {
@@ -111,6 +113,35 @@ const locations = [
   { lat: 48.7117689, lng: 1.5395125 },
   { lat: 40.6293196, lng: -3.1639421 },
   { lat: 39.3628123, lng: -8.224751 },
+  { lat: 46.7218692, lng: 25.59772 },
+  { lat: 36.3043785, lng: 127.443642 },
+  { lat: 52.7915305, lng: 6.4563205 },
+  { lat: 51.555913, lng: 4.4618603 },
+  { lat: 44.9329369, lng: 25.4406563 },
+  { lat: 65.7219523, lng: -16.7882051 },
+  { lat: 8.4753209, lng: 6.9431227 },
+  { lat: 35.0334123, lng: 135.7707912 },
+  { lat: 40.9021596, lng: 140.5511731 },
+  { lat: 17.4227965, lng: 102.8131674 },
+  { lat: 40.9348461, lng: -73.9977961 },
+  { lat: 5.6459816, lng: 100.4881779 },
+  { lat: -27.5313287, lng: 153.0331429 },
+  { lat: 18.3866107, lng: -66.0545161 },
+  { lat: 39.9018582, lng: 41.2385735 },
+  { lat: -0.1215951, lng: 117.3735366 },
+  { lat: -3.8242125, lng: 122.006225 },
+  { lat: 37.4859607, lng: 127.0252618 },
+  { lat: 66.6193681, lng: 26.1815723 },
+  { lat: 79.7554944, lng: 12.1160326 },
+  { lat: 66.4422695, lng: -136.7109915 },
+  { lat: 66.5184298, lng: 25.7510254 },
+  { lat: 42.8791291, lng: 74.6080211 },
+  { lat: 38.7850038, lng: -95.9647475 },
+  { lat: -34.5880647, lng: -56.2508323 },
+  { lat: -2.631324, lng: 37.8572428 },
+  { lat: 44.9345995, lng: 110.1354978 },
+  { lat: 5.6119329, lng: 100.4827722 },
+  { lat: 46.3547242, lng: 108.3678171 },
 ];
 
 function randomRange(min: number, max: number) {
