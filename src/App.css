@@ -234,6 +234,9 @@
   margin-top: 1vw;
 
   transition: all 0.1s linear;
+  
+  background-position: center;
+  background-size: 19.2vmin;
 }
 
 .gamemode-img:hover {
@@ -243,14 +246,18 @@
 
 .img-countries {
   background-image: url('./globe.png');
-  background-position: center;
-  background-size: 19.2vmin;
 }
 
 .img-battle-royale {
   background-image: url('./battleroyale.png');
-  background-position: center;
-  background-size: 19.2vmin;
+}
+
+.img-create {
+  background-image: url('./create.png');
+}
+
+.img-join {
+  background-image: url('./join.png');
 }
 
 .gamemode-lbl {
@@ -294,10 +301,12 @@
 
   bottom: -8vmin;
   font-size: 1vw;
+
+  user-select: none;
 }
 
 .end-btn {
-  margin: 0 .5vw;
+  margin: 0 0.5vw;
 
   height: 5vmin;
   display: flex;
@@ -308,7 +317,7 @@
   border: 2px solid white;
 
   cursor: pointer;
-  transition: .15s all linear;
+  transition: 0.15s all linear;
 
   font-size: 3vmin;
 
@@ -346,4 +355,11 @@
 
   position: absolute;
   bottom: 38vh;
+}
+
+.landing-header {
+  font-size: 6vmin;
+  margin-top: -7vh;
+  margin-bottom: 5vh;
+  font-weight: bold;
 }

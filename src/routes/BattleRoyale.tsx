@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class Home extends React.Component<any, any> {
+export default class BattleRoyale extends React.Component<any, any> {
   render() {
     return (
       <div className="App">
@@ -17,7 +17,6 @@ export default class Home extends React.Component<any, any> {
               </div>
             </div>
           </a>
-          <a href="/br">
           <div className="gamemode-wrapper">
             <div className="gamemode">
               <div className="gamemode-lbl">BATTLE ROYALE</div>
@@ -25,7 +24,6 @@ export default class Home extends React.Component<any, any> {
               <div className="wip">WORK IN PROGRESS</div>
             </div>
           </div>
-          </a>
         </div>
       </div>
     );
