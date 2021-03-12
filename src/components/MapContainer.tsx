@@ -10,6 +10,8 @@ interface MapContainerProps {
   };
   zoom: number;
 
+  right: string;
+
   guessCallback: (guess: string) => void;
 }
 
@@ -28,11 +30,8 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
 
   render() {
     return (
-      <div>
-        <div className={'selected-country' + (this.state.activePoly ? ' active' : '')} onClick={this.guess.bind(this)}>
-          {this.state.activePoly ? this.state.activePoly.i.ADMIN : 'Select a country'}
-        </div>
-        <div className="map">
+      <div style={{ position: 'absolute', right: this.props.right, bottom: '3.5vh', zIndex: 100, width: '25vw' }}>
+        <div className={'map'}>
           <GoogleMapReact
             bootstrapURLKeys={{
               key: process.env.REACT_APP_API_KEY as string,
@@ -42,6 +41,9 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
             onGoogleApiLoaded={({ map, maps }) => this.drawMap(map, maps)}
             yesIWantToUseGoogleMapApiInternals
           ></GoogleMapReact>
+        </div>
+        <div className={'selected-country' + (this.state.activePoly ? ' active' : '')} onClick={this.guess.bind(this)}>
+          {this.state.activePoly ? this.state.activePoly.i.ADMIN : 'Select a country'}
         </div>
       </div>
     );

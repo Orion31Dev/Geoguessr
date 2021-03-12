@@ -35,11 +35,13 @@
 }
 
 .selected-country {
-  position: absolute;
-  bottom: 3.5vh;
-  width: 28%;
-  right: 2vw;
+  /*position: absolute;
+  bottom: 3.5vh;*/
+  width: 100%;
+  /*right: 2vw;*/
   height: 5vh;
+
+  margin-top: 0.5vh;
 
   font-size: 3vh;
 
@@ -47,8 +49,6 @@
   box-shadow: 3px 3px #282c34;
 
   opacity: 0.9;
-
-  z-index: 10;
 
   color: white;
 
@@ -76,12 +76,11 @@
 }
 
 .map {
-  position: absolute;
+  /*position: absolute;
   bottom: 9vh;
-  right: 2vw;
+  right: 2vw;*/
   height: 33vh;
-  width: 28%;
-  z-index: 10;
+  width: 100%;
 
   opacity: 0.9;
 }
@@ -202,7 +201,7 @@
 }
 
 .version-number {
-  color: white;
+  color: #aaa;
   font-size: 1vw;
   position: absolute;
   top: 8vh;
@@ -234,7 +233,7 @@
   margin-top: 1vw;
 
   transition: all 0.1s linear;
-  
+
   background-position: center;
   background-size: 19.2vmin;
 }
@@ -362,4 +361,52 @@
   margin-top: -7vh;
   margin-bottom: 5vh;
   font-weight: bold;
+}
+
+.room-info {
+  width: 19%;
+  height: 98.6vh;
+  margin: 0 0.2vw;
+  background: white;
+
+  border-radius: 0.5vw;
+}
+
+.r404 {
+  font-weight: bold;
+  font-size: 12vw;
+}
+
+.r404-desc {
+  font-size: 2.9vw;
+  margin-top: -4vh;
+}
+
+.players {
+  margin: 5vh 0.5vw 2vh;
+  text-align: center;
+}
+
+.players-header {
+  font-weight: bold;
+  font-size: 4vmin;
+  color: black;
+}
+
+.player {
+  width: 90%;
+  height: 5vh;
+  margin: 2vh auto;
+  border-radius: 1vw;
+
+  box-shadow: 5px 5px #00000099;
+  color: black;
+
+  background: #ffff88;
+
+  font-size: 3vmin;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

@@ -11,9 +11,6 @@ module.exports = merge(commonConfig, {
   output: {
     filename: 'js/bundle.[contenthash].min.js',
     path: resolve(__dirname, './dist'),
-    publicPath: '/',
   },
-  plugins: [
-    new webpack.EnvironmentPlugin({REACT_APP_API_KEY: '', REACT_APP_VERSION: "UNK", REACT_APP_BUILD_NUM: '???'})
-  ],
+  plugins: [new webpack.EnvironmentPlugin({ REACT_APP_API_KEY: '', REACT_APP_VERSION: 'UNK', REACT_APP_BUILD_NUM: '???' })],
 });

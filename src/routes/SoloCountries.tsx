@@ -2,6 +2,7 @@ import React from 'react';
 import { MapContainer } from '../components/MapContainer';
 import { StreetViewContainer } from '../components/StreetViewContainer';
 import { isoA3ToA2 } from '../CountryCodes';
+import { io } from 'socket.io-client';
 
 const ROUND_NUM = 5;
 
@@ -14,11 +15,13 @@ interface SoloCountriesState {
   usedCountries: { lat: number; lng: number }[];
 
   rounds: boolean[];
+
+  loc: { lat: number; lng: number } | undefined;
 }
 
 class SoloCountries extends React.Component<any, SoloCountriesState> {
-  nv: any;
   map: any;
+  socket: any;
   constructor(props: any) {
     super(props);
 
@@ -29,10 +32,20 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
       countryCode: '',
       rounds: [],
       usedCountries: [],
+
+      loc: undefined,
     };
 
-    this.nv = React.createRef();
     this.map = React.createRef();
+  }
+
+  componentDidMount() {
+    this.socket = io();
+
+    this.socket.emit('request-loc', []);
+    this.socket.on('loc', (loc: { lat: number; lng: number }) => {
+      this.setState({ loc: loc });
+    });
   }
 
   render() {
@@ -46,14 +59,17 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
               guessCallback={this.guess.bind(this)}
               ref={this.map}
               key={this.state.rounds.length}
+              right={'2vw'}
             ></MapContainer>
-            <StreetViewContainer
-              center={{ lat: 41.157398, lng: -73.356401 }}
-              zoom={0}
-              doneCallback={this.streetViewDone.bind(this)}
-              usedCountries={this.state.usedCountries}
-              key={this.state.rounds.length + 1}
-            ></StreetViewContainer>
+            {this.state.loc && (
+              <StreetViewContainer
+                center={{ lat: 41.157398, lng: -73.356401 }}
+                zoom={0}
+                doneCallback={this.streetViewDone.bind(this)}
+                key={this.state.rounds.length + 1}
+                loc={this.state.loc}
+              ></StreetViewContainer>
+            )}
           </div>
         ) : (
           this.renderResults()
@@ -76,7 +92,17 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
     if (this.state.country !== '') return;
 
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignContent: 'center', flexWrap: 'wrap', height: '100%', width: '100%', marginTop: '-6vh', }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignContent: 'center',
+          flexWrap: 'wrap',
+          height: '100%',
+          width: '100%',
+          marginTop: '-6vh',
+        }}
+      >
         <div className="result-lbl">You Scored</div>
         <div className="result-percent">
           {Math.floor(
@@ -143,6 +169,8 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
 
     if (this.state.rounds.length >= ROUND_NUM) return;
     this.setState({ rounds: [...this.state.rounds, this.state.correct] });
+
+    this.socket.emit('request-loc', this.state.usedCountries);
   }
 
   guess(guess: string) {

@@ -7,6 +7,9 @@ module.exports = {
   },
   target: 'web',
   context: __dirname,
+  output: {
+    publicPath: '/',
+  },
   module: {
     rules: [
       {
@@ -50,4 +53,3 @@ module.exports = {
     hints: false,
   },
 };
-
