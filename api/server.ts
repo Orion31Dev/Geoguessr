@@ -94,7 +94,6 @@ class Room {
     this.players.push(player);
     if (this.state === RoomState.GAME) {
       player.waiting = true;
-
     }
     player.msg('state', this.state);
 
@@ -174,6 +173,7 @@ class Player {
   iconColor: string;
   waiting: boolean;
   guesses: number;
+  lives: number;
 
   constructor(id: string, socket: any) {
     this.id = id;
@@ -186,6 +186,7 @@ class Player {
 
     this.iconColor = iconColors[Math.floor(randomRange(0, iconColors.length))];
     this.guesses = MAX_GUESSES;
+    this.lives = 3;
   }
 
   joinRoom(roomId: string) {
@@ -298,6 +299,7 @@ const locations = [
   { lat: 5.6119329, lng: 100.4827722 },
   { lat: 46.3547242, lng: 108.3678171 },
   { lat: 46.0155517, lng: 9.2870717 },
+  { lat: 41.5024773, lng: -73.9623352 },
 ];
 
 function randomRange(min: number, max: number) {

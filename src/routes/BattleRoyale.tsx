@@ -119,6 +119,7 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
           {p.id.charAt(0)}
         </div>
         {p.id}
+        <div className="game-player-lives">{p.lives}/3</div>
       </div>
     ));
   }
