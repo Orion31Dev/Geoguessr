@@ -45,6 +45,16 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
     this.socket.emit('request-loc', []);
     this.socket.on('loc', (loc: { lat: number; lng: number }) => {
       this.setState({ loc: loc });
+
+      fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${loc.lat},${loc.lng}&key=${process.env.REACT_APP_API_KEY}`)
+        .then((res) => res.json())
+        .then((data: any) => {
+          data.results.forEach((obj: any) => {
+            if (obj.types.includes('country')) {
+              this.setState({ country: obj.formatted_address, countryCode: obj.address_components[0].short_name });
+            }
+          });
+        });
     });
   }
 
@@ -59,13 +69,13 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
               guessCallback={this.guess.bind(this)}
               ref={this.map}
               key={this.state.rounds.length}
+              block={["USA"]}
               right={'2vw'}
             ></MapContainer>
             {this.state.loc && (
               <StreetViewContainer
                 center={{ lat: 41.157398, lng: -73.356401 }}
                 zoom={0}
-                doneCallback={this.streetViewDone.bind(this)}
                 key={this.state.rounds.length + 1}
                 loc={this.state.loc}
               ></StreetViewContainer>
@@ -181,10 +191,6 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
     this.setState({ guessed: true, correct: correct });
 
     if (this.state.rounds.length === ROUND_NUM - 1) this.setState({ rounds: [...this.state.rounds, correct] });
-  }
-
-  streetViewDone(country: string, countryCode: string, loc: { lat: number; lng: number }) {
-    this.setState({ country: country, countryCode: countryCode, usedCountries: [...this.state.usedCountries, loc] });
   }
 }
 

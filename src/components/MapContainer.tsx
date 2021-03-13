@@ -10,6 +10,8 @@ interface MapContainerProps {
   };
   zoom: number;
 
+  block: string[];
+
   right: string;
 
   guessCallback: (guess: string) => void;
@@ -50,7 +52,18 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
   }
 
   drawMap(map: any, maps: any) {
-    map.data.addGeoJson(geoJSON);
+    map.data.addGeoJson(geoJSON).forEach((f: any) => {
+      if (this.props.block.includes(f.i.ISO_A3)) {
+        map.data.overrideStyle(f, {
+          fillColor: '#ff0000',
+          strokeColor: '#ff0000',
+          strokeWeight: 1,
+          strokeOpacity: 1,
+          fillOpacity: 0.3,
+        });
+      }
+    });
+
     maps.event.trigger(map, 'resize');
 
     map.data.setStyle({
@@ -67,6 +80,7 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
     });
 
     map.data.addListener('click', (event: any) => {
+      if (this.props.block.includes(event.feature.i.ISO_A3)) return;
       map.data.overrideStyle(event.feature, {
         fillOpacity: 0.3,
         strokeOpacity: 1,

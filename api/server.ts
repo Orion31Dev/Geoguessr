@@ -9,6 +9,12 @@ const io = require('socket.io')(http);
 
 const dist = path.resolve(__dirname, '../dist');
 
+enum RoomState {
+  LOBBY,
+  GAME,
+  ROOM_404,
+}
+
 app.use(express.static(dist));
 
 app.get('*', (_req: any, res: any) => {
@@ -26,13 +32,11 @@ io.on('connection', (socket: any) => {
   socket.on('join', (id: string) => {
     console.log('join ' + id);
     if (!RoomManager.getRoom(id)) {
-      socket.emit('room-404');
+      socket.emit('state', RoomState.ROOM_404);
       return;
     }
 
     let p = PlayerManager.addPlayer(socket);
-
-    if (!p) console.log('dumb');
 
     p?.joinRoom(id);
   });
@@ -43,6 +47,11 @@ io.on('connection', (socket: any) => {
 
   socket.on('disconnect', () => {
     if (PlayerManager.fromSocket(socket)) PlayerManager.removePlayer(PlayerManager.fromSocket(socket)!.id); // ! = assert not null
+  });
+
+  socket.on('start', () => {
+    let p = PlayerManager.fromSocket(socket);
+    if (p) RoomManager.getRoom(p.roomId)?.start(p.id);
   });
 });
 
@@ -63,38 +72,82 @@ function generateId(length: number) {
 class Room {
   roomId: string;
   players: Player[];
+  lobby: boolean;
+  host: string;
+  state: RoomState;
+  round: number;
+  loc: { lat: number; lng: number };
+  usedLocs: { lat: number; lng: number }[];
 
   constructor(roomId: string) {
     this.roomId = roomId;
     this.players = [];
+    this.lobby = true;
+    this.host = '';
+    this.state = RoomState.LOBBY;
+    this.round = -1;
+    this.loc = { lat: 0, lng: 0 };
+    this.usedLocs = [];
   }
 
   addPlayer(player: Player) {
     this.players.push(player);
+    if (this.state === RoomState.GAME) {
+      player.waiting = true;
+
+    }
+    player.msg('state', this.state);
+
+    if (this.host === '') this.host = this.players[0].id;
+
     this.broadcastPlayers();
   }
 
   removePlayer(player: Player) {
     this.players = this.players.filter((p) => p !== player);
+
+    // Update host if the current host leaves
+    if (this.host === player.id) {
+      if (this.players.length > 0) this.host = this.players[0].id;
+      else this.host = '';
+    }
+
     this.broadcastPlayers();
   }
 
+  changeState(state: RoomState) {
+    this.state = state;
+    this.broadcast('state', state);
+  }
+
+  start(id: string) {
+    if (this.players.length < 2) return;
+    if (id === this.host) {
+      this.changeState(RoomState.GAME);
+    }
+    this.newRound();
+  }
+
+  newRound() {
+    this.round += 1;
+    this.loc = getRandomLatLng(this.usedLocs);
+    this.usedLocs.push(this.loc);
+
+    this.broadcast('loc', this.loc);
+    this.broadcast('round', this.round);
+  }
+
   broadcastPlayers() {
-    let playerArr = deepCopy(this.players) // Copy Arr
-
-    ///playerArr.forEach((o: any) => delete o.socket);
-
-    console.log(playerArr);
+    let playerArr = deepCopy(this.players); // Copy Arr
 
     this.broadcast('players', playerArr);
-    console.log('bc players');
+    this.broadcast('host', this.host);
   }
 
   broadcast(topic: string, msg: any) {
     this.players.forEach((p) => p.msg(topic, msg));
   }
 }
-
 class RoomManager {
   static rooms: { [key: string]: Room } = {};
 
@@ -111,16 +164,28 @@ class RoomManager {
   }
 }
 
+const MAX_GUESSES = 3;
+
 // Player
 class Player {
   socket: any;
   id: string;
   roomId: string;
+  iconColor: string;
+  waiting: boolean;
+  guesses: number;
 
   constructor(id: string, socket: any) {
     this.id = id;
     this.socket = socket;
     this.roomId = '';
+
+    this.waiting = false;
+
+    this.msg('id', id);
+
+    this.iconColor = iconColors[Math.floor(randomRange(0, iconColors.length))];
+    this.guesses = MAX_GUESSES;
   }
 
   joinRoom(roomId: string) {
@@ -167,6 +232,8 @@ function getRandomLatLng(used: { lat: number; lng: number }[]) {
 
   return l;
 }
+
+const iconColors = ['#dd6622', '#aa66ff', '#55cc55', '#55aaff', '#7777ff', '#ff77dd', '#ffccee'];
 
 const locations = [
   { lat: 64.9296689, lng: -147.629437 },
@@ -238,23 +305,23 @@ function randomRange(min: number, max: number) {
 }
 
 function deepCopy(inObject: any) {
-  let outObject: any, value, key
+  let outObject: any, value, key;
 
-  if (typeof inObject !== "object" || inObject === null) {
-    return inObject // Return the value if inObject is not an object
+  if (typeof inObject !== 'object' || inObject === null) {
+    return inObject; // Return the value if inObject is not an object
   }
 
   // Create an array or object to hold the values
-  outObject = Array.isArray(inObject) ? [] : {}
+  outObject = Array.isArray(inObject) ? [] : {};
 
   for (key in inObject) {
     if (key === 'socket' || typeof inObject[key] === 'function') continue; // don't copy sockets and functions
 
-    value = inObject[key]
+    value = inObject[key];
 
     // Recursively (deep) copy for nested objects, including arrays
-    outObject[key] = deepCopy(value)
+    outObject[key] = deepCopy(value);
   }
 
-  return outObject
+  return outObject;
 }

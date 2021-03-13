@@ -8,8 +8,6 @@ interface StreetViewContainerProps {
   };
   zoom: number;
 
-  doneCallback: Function;
-
   loc: { lat: number; lng: number };
 }
 
@@ -47,16 +45,6 @@ export class StreetViewContainer extends React.Component<StreetViewContainerProp
     loc = this.props.loc;
 
     console.log('If the game crashed, please report this number to Ryan: ' + loc.lng);
-
-    fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${loc.lat},${loc.lng}&key=${process.env.REACT_APP_API_KEY}`)
-      .then((res) => res.json())
-      .then((data: any) => {
-        data.results.forEach((obj: any) => {
-          if (obj.types.includes('country')) {
-            this.props.doneCallback(obj.formatted_address, obj.address_components[0].short_name, loc);
-          }
-        });
-      });
 
     sv.getPanorama({ location: loc, radius: 100 }, (data: any, _status: any) => {
       panorama.setPano(data.location.pano);
