@@ -1,7 +1,6 @@
 import React from 'react';
 import { MapContainer } from '../components/MapContainer';
 import { StreetViewContainer } from '../components/StreetViewContainer';
-import { isoA3ToA2 } from '../CountryCodes';
 import { io } from 'socket.io-client';
 
 const ROUND_NUM = 5;
@@ -44,17 +43,11 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
 
     this.socket.emit('request-loc', []);
     this.socket.on('loc', (loc: { lat: number; lng: number }) => {
-      this.setState({ loc: loc });
+      this.setState({ loc: loc, usedCountries: [...this.state.usedCountries, loc] });
+    });
 
-      fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${loc.lat},${loc.lng}&key=${process.env.REACT_APP_API_KEY}`)
-        .then((res) => res.json())
-        .then((data: any) => {
-          data.results.forEach((obj: any) => {
-            if (obj.types.includes('country')) {
-              this.setState({ country: obj.formatted_address, countryCode: obj.address_components[0].short_name });
-            }
-          });
-        });
+    this.socket.on('country', (c: { country: string; countryCode: string }) => {
+      this.setState({ countryCode: c.countryCode, country: c.country });
     });
   }
 
@@ -69,7 +62,7 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
               guessCallback={this.guess.bind(this)}
               ref={this.map}
               key={this.state.rounds.length}
-              block={["USA"]}
+              block={[]}
               right={'2vw'}
             ></MapContainer>
             {this.state.loc && (
@@ -186,7 +179,7 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
   guess(guess: string) {
     if (this.state.guessed) return;
 
-    let correct = this.state.countryCode === isoA3ToA2(guess);
+    let correct = this.state.countryCode === guess;
 
     this.setState({ guessed: true, correct: correct });
 

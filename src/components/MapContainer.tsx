@@ -19,6 +19,9 @@ interface MapContainerProps {
 
 interface MapContainerState {
   activePoly: any | undefined;
+
+  polys: any[];
+  map: any;
 }
 
 export class MapContainer extends React.Component<MapContainerProps, MapContainerState> {
@@ -27,6 +30,8 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
 
     this.state = {
       activePoly: undefined,
+      polys: [],
+      map: undefined,
     };
   }
 
@@ -51,10 +56,10 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
     );
   }
 
-  drawMap(map: any, maps: any) {
-    map.data.addGeoJson(geoJSON).forEach((f: any) => {
+  updateBlockedCountries() {
+    this.state.polys.forEach((f) => {
       if (this.props.block.includes(f.i.ISO_A3)) {
-        map.data.overrideStyle(f, {
+        this.state.map?.data.overrideStyle(f, {
           fillColor: '#ff0000',
           strokeColor: '#ff0000',
           strokeWeight: 1,
@@ -63,6 +68,19 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
         });
       }
     });
+  }
+
+  resetSelected() {
+    this.state.map.data.overrideStyle(this.state.activePoly, {
+      strokeOpacity: 0,
+      fillOpacity: 0,
+    });
+
+    this.setState({ activePoly: undefined });
+  }
+
+  drawMap(map: any, maps: any) {
+    this.setState({ polys: map.data.addGeoJson(geoJSON), map: map });
 
     maps.event.trigger(map, 'resize');
 

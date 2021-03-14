@@ -2,6 +2,10 @@ const express = require('express');
 const app = express();
 
 const path = require('path');
+const nodeFetch = require('node-fetch');
+
+const countryCodes = require('./country-codes.json');
+
 require('dotenv').config();
 
 var http = require('http').createServer(app);
@@ -42,7 +46,9 @@ io.on('connection', (socket: any) => {
   });
 
   socket.on('request-loc', (used: { lat: number; lng: number }[]) => {
-    socket.emit('loc', getRandomLatLng(used));
+    let loc = getRandomLatLng(used);
+    socket.emit('loc', loc);
+    getCountryInfo(loc).then((c) => socket.emit('country', c));
   });
 
   socket.on('disconnect', () => {
@@ -52,6 +58,11 @@ io.on('connection', (socket: any) => {
   socket.on('start', () => {
     let p = PlayerManager.fromSocket(socket);
     if (p) RoomManager.getRoom(p.roomId)?.start(p.id);
+  });
+
+  socket.on('guess', (guess: string) => {
+    let p = PlayerManager.fromSocket(socket);
+    if (p) RoomManager.getRoom(p.roomId)?.guess(guess, p);
   });
 });
 
@@ -78,6 +89,11 @@ class Room {
   round: number;
   loc: { lat: number; lng: number };
   usedLocs: { lat: number; lng: number }[];
+  rightCountryCode: string;
+  rightCountry: string;
+  block: string[];
+  winnerCount: number;
+  winners: string[];
 
   constructor(roomId: string) {
     this.roomId = roomId;
@@ -87,7 +103,12 @@ class Room {
     this.state = RoomState.LOBBY;
     this.round = -1;
     this.loc = { lat: 0, lng: 0 };
+    this.rightCountry = '';
+    this.rightCountryCode = '';
     this.usedLocs = [];
+    this.block = [];
+    this.winnerCount = 1;
+    this.winners = [];
   }
 
   addPlayer(player: Player) {
@@ -127,13 +148,37 @@ class Room {
     this.newRound();
   }
 
+  guess(guess: string, player: Player) {
+    if (player.lives < 1 || player.waiting || this.state !== RoomState.GAME) return;
+
+    if (guess !== this.rightCountryCode) {
+      player.lives--;
+      this.broadcastPlayers();
+      this.block.push(guess);
+      this.broadcast('block', this.block);
+    }
+  }
+
   newRound() {
     this.round += 1;
     this.loc = getRandomLatLng(this.usedLocs);
     this.usedLocs.push(this.loc);
+    this.block = [];
+
+    getCountryInfo(this.loc).then((c: any) => {
+      this.rightCountryCode = c.countryCode;
+      this.rightCountry = c.country;
+    });
+
+    if (this.round === 0) this.winnerCount = this.players.length;
+    else this.winnerCount = this.players.filter((p) => !p.waiting).length - 1;
+
+    this.winners = [];
 
     this.broadcast('loc', this.loc);
     this.broadcast('round', this.round);
+    this.broadcast('winner-count', this.winnerCount);
+    this.broadcast('winners', this.winners);
   }
 
   broadcastPlayers() {
@@ -326,4 +371,31 @@ function deepCopy(inObject: any) {
   }
 
   return outObject;
+}
+
+// Country Codes
+async function getCountryInfo(loc: { lat: number; lng: number }) {
+  let r;
+  await nodeFetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${loc.lat},${loc.lng}&key=${process.env.REACT_APP_API_KEY}`)
+    .then((res: any) => res.json())
+    .then((data: any) => {
+      data.results.forEach((obj: any) => {
+        if (obj.types.includes('country')) {
+          r = { country: obj.formatted_address, countryCode: isoA2ToA3(obj.address_components[0].short_name) };
+        }
+      });
+    });
+  return r;
+}
+
+const cArr: { [key: string]: any } = [];
+
+for (let c of countryCodes) {
+  let cc = c as any;
+
+  cArr[cc['Alpha-2 code']] = cc['Alpha-3 code'];
+}
+
+function isoA2ToA3(a2: string) {
+  return cArr[a2];
 }

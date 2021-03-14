@@ -17,6 +17,9 @@ interface BattleRoyaleState {
   id: string;
 
   players: any[];
+
+  winnerCount: number;
+  winners: string[];
 }
 
 enum RoomState {
@@ -43,6 +46,9 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
       roomState: RoomState.LOBBY,
       host: '',
       id: '',
+
+      winnerCount: 0,
+      winners: [],
     };
   }
 
@@ -56,6 +62,13 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
     this.socket.on('round', (round: number) => this.setState({ roundNum: round }));
     this.socket.on('state', (state: RoomState) => this.setState({ roomState: state }));
     this.socket.on('loc', (loc: { lat: number; lng: number }) => this.setState({ loc: loc }));
+    this.socket.on('block', (arr: string[]) => {
+      this.setState({ wrongGuesses: arr });
+      this.map.current.updateBlockedCountries();
+    });
+
+    this.socket.on('winners', (w: string[]) => this.setState({ winners: w }));
+    this.socket.on('winner-count', (c: number) => this.setState({ winnerCount: c }));
   }
 
   render() {
@@ -74,6 +87,7 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
         {this.state.roomState !== RoomState.ROOM_404 && this.state.roomState !== RoomState.LOBBY && (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '84%' }}>
+              {this.renderWinners()}
               <MapContainer
                 center={{ lat: 45, lng: 45 }}
                 zoom={0}
@@ -104,7 +118,10 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
     );
   }
 
-  guess() {}
+  guess(guess: string) {
+    this.socket.emit('guess', guess);
+    this.map.current.resetSelected();
+  }
 
   streetViewDone() {}
 
@@ -119,7 +136,7 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
           {p.id.charAt(0)}
         </div>
         {p.id}
-        <div className="game-player-lives">{p.lives}/3</div>
+        <div className="game-player-lives">{p.waiting ? '-' : `${p.lives}/3`}</div>
       </div>
     ));
   }
@@ -170,6 +187,31 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
       return (
         <div className="lobby-player" key={index}>
           <div className="lobby-player-circle empty"></div>
+        </div>
+      );
+    }
+  }
+
+  renderWinners() {
+    let arr = [];
+    for (let i = 0; i < this.state.winnerCount; i++) arr.push(this.renderWinnerCircle(i));
+    return <div className="winners">{arr}</div>;
+  }
+
+  renderWinnerCircle(index: number) {
+    if (this.state.winners.length <= index) {
+      return (
+        <div className="winner empty" key={index}>
+          {index + 1}
+        </div>
+      );
+    } else {
+      let p = this.state.players.filter((p) => p.id === this.state.winners[index])[0];
+      if (!p) return <div>Error</div>;
+
+      return (
+        <div className="winner" style={{ background: p.iconColor, color: getColorByBgColor(p.iconColor) }} key={index}>
+          {p.id.charAt(0)}
         </div>
       );
     }
