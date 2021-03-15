@@ -287,6 +287,8 @@ class Room {
 
     clearInterval(this.cdInterval);
     this.cdInterval = undefined;
+    this.broadcast('countdown', -1);
+
 
     clearInterval(this.tInterval);
     this.tInterval = undefined;
