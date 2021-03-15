@@ -7,7 +7,6 @@ const dotenv = require('dotenv').config();
 module.exports = merge(commonConfig, {
   mode: 'development',
   entry: [
-    'babel-polyfill',
     'react-hot-loader/patch', // activate HMR for React
     'webpack/hot/only-dev-server', // bundle the client for hot reloading, only- means to only hot reload for successful updates
     './src/index.tsx', // the entry point of our app

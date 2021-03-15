@@ -7,7 +7,7 @@ const commonConfig = require('./webpack.common');
 
 module.exports = merge(commonConfig, {
   mode: 'production',
-  entry: ['babel-polyfill', './src/index.tsx'],
+  entry: ['./src/index.tsx'],
   output: {
     filename: 'js/bundle.[contenthash].min.js',
     path: resolve(__dirname, './dist'),
