@@ -4,8 +4,6 @@ import { StreetViewContainer } from '../components/StreetViewContainer';
 import { io } from 'socket.io-client';
 
 interface BattleRoyaleState {
-  guesses: boolean[];
-
   roomState: RoomState;
 
   roundNum: number;
@@ -20,12 +18,24 @@ interface BattleRoyaleState {
 
   winnerCount: number;
   winners: string[];
+
+  countdown: number;
+  timer: number;
+
+  showEndRoundBox: boolean;
 }
 
 enum RoomState {
   LOBBY,
   GAME,
   ROOM_404,
+}
+
+enum PlayerState {
+  WAITING,
+  OUT,
+  WINNER,
+  IN,
 }
 
 export default class BattleRoyale extends React.Component<any, BattleRoyaleState> {
@@ -37,7 +47,6 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
 
     this.map = React.createRef();
     this.state = {
-      guesses: [],
       roundNum: 0,
       loc: { lat: 45, lng: -30 },
       wrongGuesses: [],
@@ -49,6 +58,11 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
 
       winnerCount: 0,
       winners: [],
+
+      countdown: -1,
+      timer: -1,
+
+      showEndRoundBox: false,
     };
   }
 
@@ -59,7 +73,11 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
     this.socket.on('id', (id: string) => this.setState({ id: id }));
     this.socket.on('host', (id: string) => this.setState({ host: id }));
     this.socket.on('players', (p: any[]) => this.setState({ players: p }));
-    this.socket.on('round', (round: number) => this.setState({ roundNum: round }));
+
+    this.socket.on('round', (round: number) => {
+      this.setState({ roundNum: round, showEndRoundBox: false });
+    });
+
     this.socket.on('state', (state: RoomState) => this.setState({ roomState: state }));
     this.socket.on('loc', (loc: { lat: number; lng: number }) => this.setState({ loc: loc }));
     this.socket.on('block', (arr: string[]) => {
@@ -69,6 +87,10 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
 
     this.socket.on('winners', (w: string[]) => this.setState({ winners: w }));
     this.socket.on('winner-count', (c: number) => this.setState({ winnerCount: c }));
+    this.socket.on('showEndGame', () => this.setState({ showEndRoundBox: true }));
+
+    this.socket.on('countdown', (c: number) => this.setState({ countdown: c }));
+    this.socket.on('timer', (c: number) => this.setState({ timer: c }));
   }
 
   render() {
@@ -87,6 +109,7 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
         {this.state.roomState !== RoomState.ROOM_404 && this.state.roomState !== RoomState.LOBBY && (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '84%' }}>
+              <progress value={this.state.timer} max={60}></progress>
               {this.renderWinners()}
               <MapContainer
                 center={{ lat: 45, lng: 45 }}
@@ -106,6 +129,7 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
                 ></StreetViewContainer>
               )}
             </div>
+            {this.renderRoundResultBox()}
             <div className="room-info">
               <div className="players">
                 <div className="players-header">Players</div>
@@ -125,10 +149,73 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
 
   streetViewDone() {}
 
+  renderRoundResultBox() {
+    if (!this.state.showEndRoundBox) return;
+
+    if (this.state.winners.includes(this.state.id)) {
+      return (
+        <div className="round-result-container" style={{ width: '84%' }}>
+          <div className="round-result correct">
+            <div className="round-result-header correct">CORRECT</div>
+            <div className="round-result-desc">
+              {this.state.countdown === -1 ? 'Waiting for others...' : `Next round in ${this.state.countdown}`}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    let guesses;
+    this.state.players.forEach((p) => {
+      if (p.id === this.state.id) guesses = p.lives;
+    });
+
+    if (guesses === 0) {
+      return (
+        <div className="round-result-container" style={{ width: '84%' }}>
+          <div className="round-result incorrect">
+            <div className="round-result-header incorrect">OUT OF GUESSES</div>
+            <div className="round-result-desc">
+              {this.state.countdown === -1
+                ? this.state.winners.length > 0
+                  ? "You're out"
+                  : "If nobody guesses it, you're still in"
+                : `Next round in ${this.state.countdown}`}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (this.state.winners.length === 0) {
+      return (
+        <div className="round-result-container" style={{ width: '84%' }}>
+          <div className="round-result correct">
+            <div className="round-result-header correct">NO WINNERS</div>
+            <div className="round-result-desc">
+              {this.state.countdown === -1 ? 'Nobody is out this round' : `Next round in ${this.state.countdown}`}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="round-result-container" style={{ width: '84%' }}>
+        <div className="round-result incorrect">
+          <div className="round-result-header incorrect">YOU'RE OUT</div>
+          <div className="round-result-desc">
+            {this.state.countdown === -1 ? 'All winners have been decided' : `Next round in ${this.state.countdown}`}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   renderPlayers() {
     let i = 0;
     return this.state.players.map((p) => (
-      <div key={i++} className={'player' + (p.waiting ? ' waiting' : '')}>
+      <div key={i++} className={'player' + (p.state === PlayerState.WAITING ? ' waiting' : p.state === PlayerState.OUT ? ' out' : '')}>
         <div
           className={'game-player-circle' + (p.id === this.state.host ? ' host' : '')}
           style={{ background: p.iconColor, color: getColorByBgColor(p.iconColor) }}
@@ -136,7 +223,7 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
           {p.id.charAt(0)}
         </div>
         {p.id}
-        <div className="game-player-lives">{p.waiting ? '-' : `${p.lives}/3`}</div>
+        <div className="game-player-lives">{p.state === PlayerState.OUT ? '-' : `${p.lives}/3`}</div>
       </div>
     ));
   }

@@ -37,7 +37,7 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
 
   render() {
     return (
-      <div style={{ position: 'absolute', right: this.props.right, bottom: '3.5vh', zIndex: 100, width: '25vw' }}>
+      <div style={{ position: 'absolute', right: this.props.right, bottom: '3.5vh', zIndex: 100 }} className={"map-container"}>
         <div className={'map'}>
           <GoogleMapReact
             bootstrapURLKeys={{

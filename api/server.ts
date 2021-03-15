@@ -79,6 +79,13 @@ function generateId(length: number) {
 // Everything has to go in one file because if I use export and import, I get "import cannot be used outside a module"
 // But if I set type to module in package.json, I get "unknown file extension: .ts" because of a ts-node bug? idk
 
+enum PlayerState {
+  WAITING,
+  OUT,
+  WINNER,
+  IN,
+}
+
 // Room
 class Room {
   roomId: string;
@@ -95,6 +102,12 @@ class Room {
   winnerCount: number;
   winners: string[];
 
+  roundCountdown: number;
+  cdInterval: any;
+
+  roundTimer: number;
+  tInterval: any;
+
   constructor(roomId: string) {
     this.roomId = roomId;
     this.players = [];
@@ -109,12 +122,14 @@ class Room {
     this.block = [];
     this.winnerCount = 1;
     this.winners = [];
+    this.roundCountdown = 0;
+    this.roundTimer = 60;
   }
 
   addPlayer(player: Player) {
     this.players.push(player);
     if (this.state === RoomState.GAME) {
-      player.waiting = true;
+      player.state = PlayerState.OUT;
     }
     player.msg('state', this.state);
 
@@ -149,14 +164,50 @@ class Room {
   }
 
   guess(guess: string, player: Player) {
-    if (player.lives < 1 || player.waiting || this.state !== RoomState.GAME) return;
+    if (player.lives < 1 || player.state === PlayerState.WAITING || player.state === PlayerState.OUT || this.state !== RoomState.GAME)
+      return;
 
     if (guess !== this.rightCountryCode) {
       player.lives--;
       this.broadcastPlayers();
       this.block.push(guess);
       this.broadcast('block', this.block);
+      if (player.lives === 0) {
+        player.msg('showEndGame', '');
+        player.state = PlayerState.WAITING;
+        this.broadcastPlayers();
+      }
+    } else {
+      this.winners.push(player.id);
+      this.broadcast('winners', this.winners);
+      player.msg('showEndGame', '');
+      player.state = PlayerState.WINNER;
     }
+
+    if (this.winnerCount === this.winners.length || this.players.filter((p) => p.state !== PlayerState.IN).length === this.players.length)
+      this.endRound();
+  }
+
+  endRound() {
+    clearInterval(this.tInterval);
+    this.tInterval = undefined;
+
+    this.players.forEach((p) => {
+      if (this.winners.length > 0) {
+        if (p.state !== PlayerState.WINNER) p.state = PlayerState.OUT;
+      }
+      p.lives = 3;
+      p.msg('showEndGame', '');
+    });
+
+    // TODO: Msg players that lost on time that the round is over
+    this.roundCountdown = 4;
+    this.cdInterval = setInterval(() => {
+      this.roundCountdown--;
+      this.broadcast('countdown', this.roundCountdown);
+
+      if (this.roundCountdown === -1) this.newRound();
+    }, 1000);
   }
 
   newRound() {
@@ -165,20 +216,36 @@ class Room {
     this.usedLocs.push(this.loc);
     this.block = [];
 
+    clearInterval(this.cdInterval);
+    this.cdInterval = undefined;
+
     getCountryInfo(this.loc).then((c: any) => {
       this.rightCountryCode = c.countryCode;
       this.rightCountry = c.country;
     });
 
     if (this.round === 0) this.winnerCount = this.players.length;
-    else this.winnerCount = this.players.filter((p) => !p.waiting).length - 1;
+    else this.winnerCount = this.players.filter((p) => p.state !== PlayerState.OUT).length - 1;
 
     this.winners = [];
 
+    this.players.forEach((p) => {
+      if (p.state !== PlayerState.OUT) p.state = PlayerState.IN;
+    });
+
+    this.roundTimer = 60;
+    this.tInterval = setInterval(() => {
+      this.roundTimer--;
+      this.broadcast('timer', this.roundTimer);
+      if (this.roundTimer < 0) this.endRound();
+    }, 1000);
+
     this.broadcast('loc', this.loc);
+    this.broadcast('block', this.block);
     this.broadcast('round', this.round);
-    this.broadcast('winner-count', this.winnerCount);
     this.broadcast('winners', this.winners);
+    this.broadcast('winner-count', this.winnerCount);
+    this.broadcastPlayers();
   }
 
   broadcastPlayers() {
@@ -216,7 +283,7 @@ class Player {
   id: string;
   roomId: string;
   iconColor: string;
-  waiting: boolean;
+  state: PlayerState;
   guesses: number;
   lives: number;
 
@@ -225,7 +292,7 @@ class Player {
     this.socket = socket;
     this.roomId = '';
 
-    this.waiting = false;
+    this.state = PlayerState.IN;
 
     this.msg('id', id);
 
@@ -345,6 +412,7 @@ const locations = [
   { lat: 46.3547242, lng: 108.3678171 },
   { lat: 46.0155517, lng: 9.2870717 },
   { lat: 41.5024773, lng: -73.9623352 },
+  { lat: 38.9089947, lng: -94.6561954 },
 ];
 
 function randomRange(min: number, max: number) {
