@@ -87,18 +87,18 @@ export default class BattleRoyaleLanding extends React.Component<any, BattleRoya
     this.setState({ showRoomCode: true });
   }
 
-  joinRoom(msg: string) {
+  joinRoom(id: string) {
     if (this.state.username.length < 1) {
       this.setState({ shakeUsername: true });
       return;
     }
 
-    if (this.state.roomCode.length !== 8) {
+    if (id.length !== 8) {
       this.setState({ shakeRoomCode: true });
       return;
     }
 
     localStorage.setItem('username', this.state.username);
-    window.location.href = '/br/' + msg;
+    window.location.href = '/br/' + id;
   }
 }
