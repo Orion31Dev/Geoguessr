@@ -51,9 +51,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
+    "@babel/plugin-transform-runtime": "^7.13.10",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-stage-0": "7.8.3",
     "@babel/preset-typescript": "^7.13.0",
+    "@babel/runtime": "^7.13.10",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",

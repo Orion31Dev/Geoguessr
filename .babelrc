@@ -3,7 +3,7 @@
   "plugins": ["react-hot-loader/babel", "@babel/plugin-proposal-class-properties"],
   "env": {
     "production": {
-      "presets": ["minify", "es2015", "stage-0"]
+      "presets": ["minify", "stage-0"]
     }
   }
 }
