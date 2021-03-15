@@ -17,6 +17,14 @@ enum RoomState {
   LOBBY,
   GAME,
   ROOM_404,
+  GAME_OVER,
+}
+
+enum PlayerState {
+  WAITING,
+  OUT,
+  WINNER,
+  IN,
 }
 
 app.use(express.static(dist));
@@ -60,6 +68,11 @@ io.on('connection', (socket: any) => {
     if (p) RoomManager.getRoom(p.roomId)?.start(p.id);
   });
 
+  socket.on('lobby', () => {
+    let p = PlayerManager.fromSocket(socket);
+    if (p) RoomManager.getRoom(p.roomId)?.lobby(p.id);
+  });
+
   socket.on('guess', (guess: string) => {
     let p = PlayerManager.fromSocket(socket);
     if (p) RoomManager.getRoom(p.roomId)?.guess(guess, p);
@@ -79,18 +92,10 @@ function generateId(length: number) {
 // Everything has to go in one file because if I use export and import, I get "import cannot be used outside a module"
 // But if I set type to module in package.json, I get "unknown file extension: .ts" because of a ts-node bug? idk
 
-enum PlayerState {
-  WAITING,
-  OUT,
-  WINNER,
-  IN,
-}
-
 // Room
 class Room {
   roomId: string;
   players: Player[];
-  lobby: boolean;
   host: string;
   state: RoomState;
   round: number;
@@ -102,6 +107,8 @@ class Room {
   winnerCount: number;
   winners: string[];
 
+  gameWinner: string;
+
   roundCountdown: number;
   cdInterval: any;
 
@@ -111,7 +118,6 @@ class Room {
   constructor(roomId: string) {
     this.roomId = roomId;
     this.players = [];
-    this.lobby = true;
     this.host = '';
     this.state = RoomState.LOBBY;
     this.round = -1;
@@ -122,6 +128,7 @@ class Room {
     this.block = [];
     this.winnerCount = 1;
     this.winners = [];
+    this.gameWinner = '';
     this.roundCountdown = 0;
     this.roundTimer = 60;
   }
@@ -130,7 +137,19 @@ class Room {
     this.players.push(player);
     if (this.state === RoomState.GAME) {
       player.state = PlayerState.OUT;
+
+      this.broadcast('loc', this.loc);
+      this.broadcast('block', this.block);
+      this.broadcast('round', this.round);
+      this.broadcast('winners', this.winners);
+      this.broadcast('winner-count', this.winnerCount);
+      this.broadcastPlayers();
     }
+
+    if (this.state === RoomState.GAME_OVER) {
+      this.broadcast('game-winner', this.gameWinner);
+    }
+
     player.msg('state', this.state);
 
     if (this.host === '') this.host = this.players[0].id;
@@ -147,6 +166,25 @@ class Room {
       else this.host = '';
     }
 
+    if (this.state === RoomState.GAME) {
+      if (player.state === PlayerState.WINNER) {
+        this.winners = this.winners.filter((i) => i !== player.id);
+        this.winnerCount--;
+
+        this.broadcast('winners', this.winners);
+        this.broadcast('winner-count', this.winnerCount);
+      }
+
+      let arr = this.players.filter((p) => p.state === PlayerState.WINNER || p.state === PlayerState.IN);
+      if (arr.length === 1) {
+        this.changeState(RoomState.GAME_OVER);
+        this.gameWinner = arr[0].id;
+        this.broadcast('game-winner', this.gameWinner);
+      } else if (this.players.length < 2) {
+        this.changeState(RoomState.LOBBY);
+      }
+    }
+
     this.broadcastPlayers();
   }
 
@@ -156,11 +194,29 @@ class Room {
   }
 
   start(id: string) {
+    if (this.state !== RoomState.LOBBY) return;
+
     if (this.players.length < 2) return;
     if (id === this.host) {
       this.changeState(RoomState.GAME);
     }
+
+    this.players.forEach((p) => {
+      p.state = PlayerState.IN;
+    });
+
+    this.round = -1;
+    this.block = [];
+
     this.newRound();
+  }
+
+  lobby(id: string) {
+    if (this.state !== RoomState.GAME_OVER) return;
+
+    if (id === this.host) {
+      this.changeState(RoomState.LOBBY);
+    }
   }
 
   guess(guess: string, player: Player) {
@@ -200,6 +256,12 @@ class Room {
       p.msg('showEndGame', '');
     });
 
+    if (this.winners.length === 1) {
+      this.changeState(RoomState.GAME_OVER);
+      this.gameWinner = this.winners[0];
+      this.broadcast('game-winner', this.gameWinner);
+    }
+
     // TODO: Msg players that lost on time that the round is over
     this.roundCountdown = 4;
     this.cdInterval = setInterval(() => {
@@ -218,6 +280,9 @@ class Room {
 
     clearInterval(this.cdInterval);
     this.cdInterval = undefined;
+
+    clearInterval(this.tInterval);
+    this.tInterval = undefined;
 
     getCountryInfo(this.loc).then((c: any) => {
       this.rightCountryCode = c.countryCode;
@@ -341,7 +406,7 @@ class PlayerManager {
 function getRandomLatLng(used: { lat: number; lng: number }[]) {
   let l;
   do l = locations[Math.floor(randomRange(0, locations.length))];
-  while (used.includes(l));
+  while (used.includes(l) && used.length < locations.length);
 
   return l;
 }

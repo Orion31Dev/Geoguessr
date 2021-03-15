@@ -23,12 +23,15 @@ interface BattleRoyaleState {
   timer: number;
 
   showEndRoundBox: boolean;
+
+  gameWinner: string;
 }
 
 enum RoomState {
   LOBBY,
   GAME,
   ROOM_404,
+  GAME_OVER,
 }
 
 enum PlayerState {
@@ -59,6 +62,8 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
       winnerCount: 0,
       winners: [],
 
+      gameWinner: '',
+
       countdown: -1,
       timer: -1,
 
@@ -87,6 +92,7 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
 
     this.socket.on('winners', (w: string[]) => this.setState({ winners: w }));
     this.socket.on('winner-count', (c: number) => this.setState({ winnerCount: c }));
+    this.socket.on('game-winner', (w: string) => this.setState({ gameWinner: w }));
     this.socket.on('showEndGame', () => this.setState({ showEndRoundBox: true }));
 
     this.socket.on('countdown', (c: number) => this.setState({ countdown: c }));
@@ -106,7 +112,8 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
           </div>
         )}
         {this.state.roomState === RoomState.LOBBY && this.renderLobby()}
-        {this.state.roomState !== RoomState.ROOM_404 && this.state.roomState !== RoomState.LOBBY && (
+        {this.state.roomState === RoomState.GAME_OVER && this.renderWinnerScreen()}
+        {this.state.roomState === RoomState.GAME && (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '84%' }}>
               <progress value={this.state.timer} max={60}></progress>
@@ -174,7 +181,9 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
       return (
         <div className="round-result-container" style={{ width: '84%' }}>
           <div className="round-result incorrect">
-            <div className="round-result-header incorrect">OUT OF GUESSES</div>
+            <div className="round-result-header incorrect" style={{ fontSize: '3vw' }}>
+              OUT OF GUESSES
+            </div>
             <div className="round-result-desc">
               {this.state.countdown === -1
                 ? this.state.winners.length > 0
@@ -226,6 +235,39 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
         <div className="game-player-lives">{p.state === PlayerState.OUT ? '-' : `${p.lives}/3`}</div>
       </div>
     ));
+  }
+
+  renderWinnerScreen() {
+    const p = this.state.players.filter((p) => p.id === this.state.gameWinner)[0];
+    if (!p) return <div></div>;
+
+    return (
+      <div className="game-winner">
+        <div className="lobby-header">BATTLE ROYALE</div>
+        <div className="lobby-room-code">Room Code: {this.props.match.params.room}</div>
+        <div className="game-winner">
+          <div
+            className={'game-winner-circle' + (p.id === this.state.host ? ' host' : '')}
+            style={{ background: p.iconColor, color: getColorByBgColor(p.iconColor) }}
+          >
+            {p.id.charAt(0)}
+          </div>
+          <div className="game-winner-name">{p.id} Wins!</div>
+        </div>
+        {this.state.host === this.state.id ? (
+          <div
+            className={'lobby-btn-start active'}
+            onClick={() => {
+              this.socket.emit('lobby');
+            }}
+          >
+            Return to Lobby
+          </div>
+        ) : (
+          <div className="lobby-waiting">Waiting for Host...</div>
+        )}
+      </div>
+    );
   }
 
   renderLobby() {

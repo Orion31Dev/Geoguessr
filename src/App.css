@@ -632,11 +632,37 @@ progress {
 progress::-webkit-progress-bar {
   background: #484f5e;
   border-radius: 2vmin;
-  padding: .4vmin;
+  padding: 0.4vmin;
 }
 
-/* Now the value part */
 progress::-webkit-progress-value {
   border-radius: 2vmin;
   background: #77eeff;
+}
+
+.game-winner {
+  width: 50vw;
+  height: 50vh;
+
+  margin: 0 auto;
+}
+
+.game-winner-circle {
+  width: 17vmin;
+  height: 17vmin;
+
+  margin: 15vh auto 2vh;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 9vmin;
+  box-sizing: border-box;
+}
+
+.game-winner-name {
+  font-size: 4vmin;
 }
