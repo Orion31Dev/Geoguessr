@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "babel-preset-minify": "^0.5.1",
     "express": "^4.17.1",
     "global": "^4.4.0",
     "google-map-react": "^2.1.9",
