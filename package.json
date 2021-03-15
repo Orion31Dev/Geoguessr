@@ -27,7 +27,7 @@
   "scripts": {
     "build": "yarn run clean-dist && webpack --config=webpack.prod.js",
     "clean-dist": "rimraf dist/*",
-    "start": "yarn run start-dev",
+    "start": "nodemon ./api/server.ts",
     "start-dev": "concurrently \"webpack --config=webpack.dev.js --watch\" \"nodemon ./api/server.ts\"",
     "start-prod": "yarn run build && nodemon ./api/server.ts"
   },
