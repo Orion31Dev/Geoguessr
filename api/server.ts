@@ -168,6 +168,11 @@ class Room {
   removePlayer(player: Player) {
     this.players = this.players.filter((p) => p !== player);
 
+    if (this.players.length === 0) {
+      RoomManager.removeRoom(this.roomId);
+      return;
+    }
+
     // Update host if the current host leaves
     if (this.host === player.id) {
       if (this.players.length > 0) this.host = this.players[0].id;
@@ -289,7 +294,6 @@ class Room {
     this.cdInterval = undefined;
     this.broadcast('countdown', -1);
 
-
     clearInterval(this.tInterval);
     this.tInterval = undefined;
 
@@ -334,7 +338,7 @@ class Room {
   }
 }
 class RoomManager {
-  static rooms: { [key: string]: Room } = {};
+  static rooms: { [key: string]: Room | undefined } = {};
 
   static createRoom() {
     let id = generateId(8);
@@ -342,6 +346,10 @@ class RoomManager {
 
     this.rooms[id] = new Room(id);
     return id;
+  }
+
+  static removeRoom(id: string) {
+    this.rooms[id] = undefined;
   }
 
   static getRoom(id: string) {
@@ -381,7 +389,7 @@ class Player {
   joinRoom(roomId: string) {
     if (!RoomManager.getRoom(roomId)) return;
 
-    RoomManager.getRoom(roomId).addPlayer(this);
+    RoomManager.getRoom(roomId)?.addPlayer(this);
     this.roomId = roomId;
   }
 
