@@ -22,7 +22,6 @@ export default class Home extends React.Component<any, any> {
             <div className="gamemode">
               <div className="gamemode-lbl">BATTLE ROYALE</div>
               <div className="img-battle-royale gamemode-img"></div>
-              <div className="wip">WORK IN PROGRESS</div>
             </div>
           </div>
           </a>

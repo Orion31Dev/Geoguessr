@@ -262,7 +262,6 @@ class Room {
       this.broadcast('game-winner', this.gameWinner);
     }
 
-    // TODO: Msg players that lost on time that the round is over
     this.roundCountdown = 4;
     this.cdInterval = setInterval(() => {
       this.roundCountdown--;
