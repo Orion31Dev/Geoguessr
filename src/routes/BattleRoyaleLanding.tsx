@@ -1,13 +1,35 @@
 import React from 'react';
 import { io, Socket } from 'socket.io-client';
 
-export default class Home extends React.Component<any, any> {
+interface BattleRoyaleLandingState {
+  showRoomCode: boolean;
+  username: string;
+  roomCode: string;
+
+  shakeUsername: boolean;
+  shakeRoomCode: boolean;
+}
+
+export default class BattleRoyaleLanding extends React.Component<any, BattleRoyaleLandingState> {
   socket: Socket | undefined = undefined;
+
+  constructor(props: any) {
+    super(props);
+
+    this.state = {
+      showRoomCode: false,
+      username: '',
+      roomCode: '',
+
+      shakeUsername: false,
+      shakeRoomCode: false,
+    };
+  }
 
   componentDidMount() {
     this.socket = io();
 
-    this.socket.on('join', this.join);
+    this.socket.on('join', this.joinRoom.bind(this));
   }
 
   render() {
@@ -24,13 +46,32 @@ export default class Home extends React.Component<any, any> {
               <div className="img-create gamemode-img"></div>
             </div>
           </div>
-          <div className="gamemode-wrapper">
+          <div className="gamemode-wrapper" onClick={this.join.bind(this)}>
             <div className="gamemode">
               <div className="gamemode-lbl">JOIN</div>
               <div className="img-join gamemode-img"></div>
             </div>
           </div>
         </div>
+        <div className="push" style={{ height: '5vmin', width: '100%' }}></div>
+        <input
+          className={'input-username' + (this.state.shakeUsername ? ' shake' : '')}
+          placeholder={'Username'}
+          maxLength={7}
+          value={this.state.username}
+          onAnimationEnd={() => this.setState({ shakeUsername: false })}
+          onChange={(e) => this.setState({ username: e.target.value })}
+        ></input>
+        {this.state.showRoomCode && (
+          <input
+            className={'input-room-code' + (this.state.shakeRoomCode ? ' shake' : '')}
+            placeholder={'Room Code'}
+            maxLength={8}
+            value={this.state.roomCode}
+            onAnimationEnd={() => this.setState({ shakeRoomCode: false })}
+            onChange={(e) => this.setState({ roomCode: e.target.value })}
+          ></input>
+        )}
       </div>
     );
   }
@@ -39,8 +80,25 @@ export default class Home extends React.Component<any, any> {
     this.socket?.emit('create-room');
   }
 
-  join(msg: string) {
-    console.log("Create Room cmd Received: " + msg);
+  join() {
+    if (this.state.showRoomCode) {
+      this.joinRoom(this.state.roomCode);
+    }
+    this.setState({ showRoomCode: true });
+  }
+
+  joinRoom(msg: string) {
+    if (this.state.username.length < 1) {
+      this.setState({ shakeUsername: true });
+      return;
+    }
+
+    if (this.state.roomCode.length !== 8) {
+      this.setState({ shakeRoomCode: true });
+      return;
+    }
+
+    localStorage.setItem('username', this.state.username);
     window.location.href = '/br/' + msg;
   }
 }

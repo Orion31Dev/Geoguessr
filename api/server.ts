@@ -53,6 +53,14 @@ io.on('connection', (socket: any) => {
     p?.joinRoom(id);
   });
 
+  socket.on('username', (username: string) => {
+    let p = PlayerManager.fromSocket(socket);
+    if (p) {
+      p.username = username;
+      RoomManager.getRoom(p.roomId)?.broadcastPlayers();
+    }
+  });
+
   socket.on('request-loc', (used: { lat: number; lng: number }[]) => {
     let loc = getRandomLatLng(used);
     socket.emit('loc', loc);
@@ -345,6 +353,7 @@ const MAX_GUESSES = 3;
 class Player {
   socket: any;
   id: string;
+  username: string;
   roomId: string;
   iconColor: string;
   state: PlayerState;
@@ -359,6 +368,8 @@ class Player {
     this.state = PlayerState.IN;
 
     this.msg('id', id);
+
+    this.username = '';
 
     this.iconColor = iconColors[Math.floor(randomRange(0, iconColors.length))];
     this.guesses = MAX_GUESSES;

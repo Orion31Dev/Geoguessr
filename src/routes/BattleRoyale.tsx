@@ -74,6 +74,7 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
   componentDidMount() {
     this.socket = io();
     this.socket.emit('join', this.props.match.params.room);
+    this.socket.emit('username', localStorage.getItem('username'));
 
     this.socket.on('id', (id: string) => this.setState({ id: id }));
     this.socket.on('host', (id: string) => this.setState({ host: id }));
@@ -229,9 +230,9 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
           className={'game-player-circle' + (p.id === this.state.host ? ' host' : '')}
           style={{ background: p.iconColor, color: getColorByBgColor(p.iconColor) }}
         >
-          {p.id.charAt(0)}
+          {p.username.charAt(0)}
         </div>
-        {p.id}
+        {p.username}
         <div className="game-player-lives">{p.state === PlayerState.OUT ? '-' : `${p.lives}/3`}</div>
       </div>
     ));
@@ -250,9 +251,9 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
             className={'game-winner-circle' + (p.id === this.state.host ? ' host' : '')}
             style={{ background: p.iconColor, color: getColorByBgColor(p.iconColor) }}
           >
-            {p.id.charAt(0)}
+            {p.username.charAt(0)}
           </div>
-          <div className="game-winner-name">{p.id} Wins!</div>
+          <div className="game-winner-name">{p.username} Wins!</div>
         </div>
         {this.state.host === this.state.id ? (
           <div
@@ -307,9 +308,9 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
             className={'lobby-player-circle' + (this.state.players[index].id === this.state.host ? ' host' : '')}
             style={{ background: this.state.players[index].iconColor, color: getColorByBgColor(this.state.players[index].iconColor) }}
           >
-            {this.state.players[index].id.charAt(0)}
+            {this.state.players[index].username.charAt(0)}
           </div>
-          <div className="lobby-player-name">{this.state.players[index].id}</div>
+          <div className="lobby-player-name">{this.state.players[index].username}</div>
         </div>
       );
     } else {
@@ -340,7 +341,7 @@ export default class BattleRoyale extends React.Component<any, BattleRoyaleState
 
       return (
         <div className="winner" style={{ background: p.iconColor, color: getColorByBgColor(p.iconColor) }} key={index}>
-          {p.id.charAt(0)}
+          {p.username.charAt(0)}
         </div>
       );
     }
