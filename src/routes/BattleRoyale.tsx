@@ -1,6 +1,5 @@
-import { join } from 'node:path';
 import React from 'react';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import BattleRoyaleGame from './BattleRoyaleGame';
 
 interface BattleRoyaleState {
@@ -27,12 +26,7 @@ export default class BattleRoyaleLanding extends React.Component<any, BattleRoya
   componentDidMount() {}
 
   render() {
-    if (this.state.showGame)
-      return (
-        <div className="App">
-          <BattleRoyaleGame roomId={this.props.match.params.room} />
-        </div>
-      );
+    if (this.state.showGame) return <BattleRoyaleGame roomId={this.props.match.params.room} />;
 
     return (
       <div className="App">
