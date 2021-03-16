@@ -740,3 +740,42 @@ input.shake {
     transform: translate(1px, -2px) rotate(-1deg);
   }
 }
+
+.username-popup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.popup-input {
+  position: static;
+}
+
+.popup-float-above {
+  margin-top: -15vmin;
+  margin-bottom: 20vmin;
+}
+
+.popup-tag {
+  font-size: 4.5vmin;
+}
+
+.btn-username-submit {
+  background: #00ff00;
+  box-shadow: 0.3vmin 0.3vmin #008800;
+  color: black;
+  cursor: pointer;
+  user-select: none;
+
+  font-size: 4vmin;
+  font-weight: bold;
+  padding: 1vmin 2vmin;
+  border-radius: 1vw;
+}
+
+.btn-username-submit:hover {
+  background: #00cc00;
+  box-shadow: 0.1vmin 0.1vmin #008800;
+  transform: translate(0.2vmin, 0.2vmin);
+}
