@@ -56,6 +56,7 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
   }
 
   render() {
+    let key = this.state.loc ? Math.floor(this.state.loc.lat) : 0 + this.state.rounds.length;
     return (
       <div className="App">
         {this.state.rounds.length < ROUND_NUM ? (
@@ -65,7 +66,7 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
               zoom={0}
               guessCallback={this.guess.bind(this)}
               ref={this.map}
-              key={this.state.rounds.length}
+              key={key}
               block={[]}
               right={'2vw'}
             ></MapContainer>
@@ -73,7 +74,7 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
               <StreetViewContainer
                 center={{ lat: 41.157398, lng: -73.356401 }}
                 zoom={0}
-                key={this.state.rounds.length + 1}
+                key={key + 1}
                 loc={this.state.loc}
               ></StreetViewContainer>
             )}

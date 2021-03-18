@@ -40,9 +40,7 @@ export class StreetViewContainer extends React.Component<StreetViewContainerProp
     let sv = new maps.StreetViewService();
     let panorama = new maps.StreetViewPanorama(document.getElementById('map'));
 
-    let loc: { lat: number; lng: number };
-
-    loc = this.props.loc;
+    let loc = this.props.loc;
 
     console.log('If the game crashed, please report this number to Ryan: ' + loc.lng);
 

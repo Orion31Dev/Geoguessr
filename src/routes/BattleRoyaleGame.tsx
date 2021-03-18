@@ -97,7 +97,7 @@ export default class BattleRoyaleGame extends React.Component<any, BattleRoyaleG
       console.log('loc:');
       console.log(loc);
     });
-    
+
     this.socket.on('block', (arr: string[]) => {
       this.setState({ wrongGuesses: arr });
       this.map.current.updateBlockedCountries();
@@ -113,6 +113,8 @@ export default class BattleRoyaleGame extends React.Component<any, BattleRoyaleG
   }
 
   render() {
+    let key = this.state.loc ? Math.floor(this.state.loc.lat) : 0 + this.state.roundNum;
+
     return (
       <div className="App">
         <div className="header">
@@ -136,7 +138,7 @@ export default class BattleRoyaleGame extends React.Component<any, BattleRoyaleG
                 zoom={0}
                 guessCallback={this.guess.bind(this)}
                 ref={this.map}
-                key={this.state.roundNum}
+                key={key}
                 right={'18vw'}
                 block={this.state.wrongGuesses}
               ></MapContainer>
@@ -144,7 +146,7 @@ export default class BattleRoyaleGame extends React.Component<any, BattleRoyaleG
                 <StreetViewContainer
                   center={{ lat: 41.157398, lng: -73.356401 }}
                   zoom={0}
-                  key={this.state.roundNum + 1}
+                  key={key + 1}
                   loc={this.state.loc}
                 ></StreetViewContainer>
               )}
