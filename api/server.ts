@@ -424,9 +424,11 @@ class PlayerManager {
 }
 
 function getRandomLatLng(used: { lat: number; lng: number }[]) {
+  if (used.length >= locations.length) used = [];
+
   let l;
   do l = locations[Math.floor(randomRange(0, locations.length))];
-  while (used.includes(l) && used.length < locations.length);
+  while (used.includes(l));
 
   return l;
 }
