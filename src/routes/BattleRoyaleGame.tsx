@@ -91,7 +91,13 @@ export default class BattleRoyaleGame extends React.Component<any, BattleRoyaleG
     });
 
     this.socket.on('state', (state: RoomState) => this.setState({ roomState: state }));
-    this.socket.on('loc', (loc: { lat: number; lng: number }) => this.setState({ loc: loc }));
+
+    this.socket.on('loc', (loc: { lat: number; lng: number }) => {
+      this.setState({ loc: loc });
+      console.log('loc:');
+      console.log(loc);
+    });
+    
     this.socket.on('block', (arr: string[]) => {
       this.setState({ wrongGuesses: arr });
       this.map.current.updateBlockedCountries();

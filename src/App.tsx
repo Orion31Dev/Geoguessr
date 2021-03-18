@@ -4,7 +4,7 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import './App.css';
 import Home from './routes/Home';
 import SoloCountries from './routes/SoloCountries';
-import BattleRoyale from './routes/BattleRoyale';
+import BattleRoyale from './routes/BattleRoyaleUsernamePopup';
 import BattleRoyaleLanding from './routes/BattleRoyaleLanding';
 import BattleRoyaleGame from './routes/BattleRoyaleGame';
 
