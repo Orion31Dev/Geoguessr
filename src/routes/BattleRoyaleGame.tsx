@@ -94,8 +94,6 @@ export default class BattleRoyaleGame extends React.Component<any, BattleRoyaleG
 
     this.socket.on('loc', (loc: { lat: number; lng: number }) => {
       this.setState({ loc: loc });
-      console.log('loc:');
-      console.log(loc);
     });
 
     this.socket.on('block', (arr: string[]) => {

@@ -45,12 +45,9 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
 
     this.socket.on('loc', (loc: { lat: number; lng: number }) => {
       this.setState({ loc: loc, usedCountries: [...this.state.usedCountries, loc] });
-      console.log('loc:');
-      console.log(loc);
     });
 
     this.socket.on('country', (c: { country: string; countryCode: string }) => {
-      console.log('country: ' + c.country);
       this.setState({ countryCode: c.countryCode, country: c.country });
     });
   }
