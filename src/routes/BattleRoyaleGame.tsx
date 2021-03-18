@@ -3,10 +3,6 @@ import { MapContainer } from '../components/MapContainer';
 import { StreetViewContainer } from '../components/StreetViewContainer';
 import { io } from 'socket.io-client';
 
-interface BattleRoyaleGameProps {
-  roomId: string;
-}
-
 interface BattleRoyaleGameState {
   roomState: RoomState;
 
@@ -45,7 +41,7 @@ enum PlayerState {
   IN,
 }
 
-export default class BattleRoyaleGame extends React.Component<BattleRoyaleGameProps, BattleRoyaleGameState> {
+export default class BattleRoyaleGame extends React.Component<any, BattleRoyaleGameState> {
   map: any;
   socket: any;
 
@@ -76,11 +72,15 @@ export default class BattleRoyaleGame extends React.Component<BattleRoyaleGamePr
   }
 
   componentDidMount() {
-    
+    let username = localStorage.getItem('username');
+    if (!username) {
+      window.location.href = '/user/' + this.props.match.params.room;
+      return;
+    }
 
     this.socket = io();
-    this.socket.emit('join', this.props.roomId);
-    this.socket.emit('username', localStorage.getItem('username'));
+    this.socket.emit('join', this.props.match.params.room);
+    this.socket.emit('username', username);
 
     this.socket.on('id', (id: string) => this.setState({ id: id }));
     this.socket.on('host', (id: string) => this.setState({ host: id }));
@@ -251,7 +251,7 @@ export default class BattleRoyaleGame extends React.Component<BattleRoyaleGamePr
     return (
       <div className="game-winner">
         <div className="lobby-header">BATTLE ROYALE</div>
-        <div className="lobby-room-code">Room Code: {this.props.roomId}</div>
+        <div className="lobby-room-code">Room Code: {this.props.match.params.room}</div>
         <div className="game-winner">
           <div
             className={'game-winner-circle' + (p.id === this.state.host ? ' host' : '')}
@@ -281,7 +281,7 @@ export default class BattleRoyaleGame extends React.Component<BattleRoyaleGamePr
     return (
       <div className="lobby">
         <div className="lobby-header">BATTLE ROYALE</div>
-        <div className="lobby-room-code">Room Code: {this.props.roomId}</div>
+        <div className="lobby-room-code">Room Code: {this.props.match.params.room}</div>
         <div className="lobby-row">{this.renderLobbyRow(0, 4)}</div>
         <div className="lobby-row">{this.renderLobbyRow(4, 8)}</div>
         {this.state.host === this.state.id ? (

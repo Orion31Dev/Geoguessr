@@ -1,15 +1,13 @@
 import React from 'react';
 import { Socket } from 'socket.io-client';
-import BattleRoyaleGame from './BattleRoyaleGame';
 
-interface BattleRoyaleState {
+interface BattleRoyaleUsernamePopupState {
   username: string;
 
   shakeUsername: boolean;
-  showGame: boolean;
 }
 
-export default class BattleRoyaleLanding extends React.Component<any, BattleRoyaleState> {
+export default class BattleRoyaleUsernamePopup extends React.Component<any, BattleRoyaleUsernamePopupState> {
   socket: Socket | undefined = undefined;
 
   constructor(props: any) {
@@ -18,16 +16,11 @@ export default class BattleRoyaleLanding extends React.Component<any, BattleRoya
     this.state = {
       username: '',
 
-      showGame: localStorage.getItem('username') ? true : false,
       shakeUsername: false,
     };
   }
 
-  componentDidMount() {}
-
   render() {
-    if (this.state.showGame) return <BattleRoyaleGame roomId={this.props.match.params.room} />;
-
     return (
       <div className="App">
         <div className="lobby">
@@ -60,6 +53,6 @@ export default class BattleRoyaleLanding extends React.Component<any, BattleRoya
     }
 
     localStorage.setItem('username', this.state.username);
-    this.setState({ showGame: true });
+    window.location.href = "/br/" + this.props.match.params.room;
   }
 }

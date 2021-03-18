@@ -6,6 +6,7 @@ import Home from './routes/Home';
 import SoloCountries from './routes/SoloCountries';
 import BattleRoyale from './routes/BattleRoyale';
 import BattleRoyaleLanding from './routes/BattleRoyaleLanding';
+import BattleRoyaleGame from './routes/BattleRoyaleGame';
 
 function App() {
   return (
@@ -20,7 +21,8 @@ function App() {
           </Route>
           <Route exact path={'/countries'} component={SoloCountries} />
           <Route exact path={'/br'} component={BattleRoyaleLanding} />
-          <Route exact path={'/br/:room'} component={BattleRoyale} />
+          <Route exact path={'/br/:room'} component={BattleRoyaleGame} />
+          <Route exact path={'/user/:room'} component={BattleRoyale} />
         </Switch>
       </BrowserRouter>
     </div>
