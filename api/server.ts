@@ -430,6 +430,8 @@ function getRandomLatLng(used: { lat: number; lng: number }[]) {
   do l = locations[Math.floor(randomRange(0, locations.length))];
   while (used.includes(l));
 
+  console.log('lng: ' + l.lng);
+
   return l;
 }
 
