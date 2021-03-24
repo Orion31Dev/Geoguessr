@@ -83,7 +83,7 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
         </div>
         {this.renderRoundResultBox()}
         {this.state.guessed && (
-          <div className="btn-next-round" onClick={this.nextRound.bind(this)}>
+          <div className="btn-next-round" onClick={this.nextRound.bind(this, false)}>
             {this.state.rounds.length < ROUND_NUM ? 'Next Round' : 'Results'}
           </div>
         )}
@@ -121,12 +121,7 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
           <a href="/">
             <div className="btn-home end-btn">Home</div>
           </a>
-          <div
-            className="btn-new-game end-btn"
-            onClick={() => {
-              this.setState({ correct: false, guessed: false, country: '', countryCode: '', rounds: [] });
-            }}
-          >
+          <div className="btn-new-game end-btn" onClick={this.newGame.bind(this)}>
             New Game
           </div>
         </div>
@@ -167,11 +162,22 @@ class SoloCountries extends React.Component<any, SoloCountriesState> {
     return arr;
   }
 
-  nextRound() {
+  newGame() {
+    this.nextRound(true);
+  }
+
+  nextRound(triggerNewGame: boolean) {
+    if (triggerNewGame) {
+      this.setState({ rounds: [] });
+      this.socket.emit('request-loc', this.state.usedCountries);
+    }
+
     this.setState({ correct: false, guessed: false, country: '', countryCode: '' });
 
     if (this.state.rounds.length >= ROUND_NUM) return;
     this.setState({ rounds: [...this.state.rounds, this.state.correct] });
+
+    if (triggerNewGame) return;
 
     this.socket.emit('request-loc', this.state.usedCountries);
   }

@@ -116,6 +116,6 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
   }
 
   guess() {
-    this.props.guessCallback(this.state.activePoly.i.ISO_A3);
+    if (this.state.activePoly) this.props.guessCallback(this.state.activePoly.i.ISO_A3);
   }
 }
