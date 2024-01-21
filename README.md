@@ -1,2 +1,2 @@
 # GeoGuessr
-GeoGuessr is a game where you have to find where in the world you are given a Google Street View. The only problem is that it costs $2 per month. To not have to pay, I remade the game from scratch.
+A remake of Geoguessr from scratch. Features a guess-the-country and Battle Royale gamemodes. Written in React and Node.js
