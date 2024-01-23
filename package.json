@@ -29,7 +29,7 @@
     "build": "webpack --config=webpack.prod.js",
     "clean-dist": "rimraf dist/*",
     "start-dev": "concurrently \"webpack --config=webpack.dev.js --watch\" \"nodemon ./api/server.ts\"",
-    "start": "yarn run build && nodemon ./api/server.ts"
+    "start": "yarn run build && node ./api/server.ts"
   },
   "eslintConfig": {
     "extends": [
