@@ -50,7 +50,7 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
           ></GoogleMapReact>
         </div>
         <div className={'selected-country' + (this.state.activePoly ? ' active' : '')} onClick={this.guess.bind(this)}>
-          {this.state.activePoly ? this.state.activePoly.h.ADMIN : 'Select a country'}
+          {this.state.activePoly ? this.state.activePoly.Jg.ADMIN : 'Select a country'}
         </div>
       </div>
     );
@@ -58,7 +58,7 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
 
   updateBlockedCountries() {
     this.state.polys.forEach((f) => {
-      if (this.props.block.includes(f.h.ISO_A3)) {
+      if (this.props.block.includes(f.Jg.ISO_A3)) {
         this.state.map?.data.overrideStyle(f, {
           fillColor: '#ff0000',
           strokeColor: '#ff0000',
@@ -98,7 +98,7 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
     });
 
     map.data.addListener('click', (event: any) => {
-      if (this.props.block.includes(event.feature.h.ISO_A3)) return;
+      if (this.props.block.includes(event.feature.Jg.ISO_A3)) return;
       map.data.overrideStyle(event.feature, {
         fillOpacity: 0.3,
         strokeOpacity: 1,
@@ -116,6 +116,6 @@ export class MapContainer extends React.Component<MapContainerProps, MapContaine
   }
 
   guess() {
-    if (this.state.activePoly) this.props.guessCallback(this.state.activePoly.h.ISO_A3);
+    if (this.state.activePoly) this.props.guessCallback(this.state.activePoly.Jg.ISO_A3);
   }
 }
